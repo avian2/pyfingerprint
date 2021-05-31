@@ -266,33 +266,36 @@ class PyFingerprint(object):
         """
 
         ## Write header (one byte at once)
-        self.__serial.write(self.__byteToString(self.__rightShift(FINGERPRINT_STARTCODE, 8)))
-        self.__serial.write(self.__byteToString(self.__rightShift(FINGERPRINT_STARTCODE, 0)))
+        packet = b''
+        packet += (self.__byteToString(self.__rightShift(FINGERPRINT_STARTCODE, 8)))
+        packet += (self.__byteToString(self.__rightShift(FINGERPRINT_STARTCODE, 0)))
 
-        self.__serial.write(self.__byteToString(self.__rightShift(self.__address, 24)))
-        self.__serial.write(self.__byteToString(self.__rightShift(self.__address, 16)))
-        self.__serial.write(self.__byteToString(self.__rightShift(self.__address, 8)))
-        self.__serial.write(self.__byteToString(self.__rightShift(self.__address, 0)))
+        packet += (self.__byteToString(self.__rightShift(self.__address, 24)))
+        packet += (self.__byteToString(self.__rightShift(self.__address, 16)))
+        packet += (self.__byteToString(self.__rightShift(self.__address, 8)))
+        packet += (self.__byteToString(self.__rightShift(self.__address, 0)))
 
-        self.__serial.write(self.__byteToString(packetType))
+        packet += (self.__byteToString(packetType))
 
         ## The packet length = package payload (n bytes) + checksum (2 bytes)
         packetLength = len(packetPayload) + 2
 
-        self.__serial.write(self.__byteToString(self.__rightShift(packetLength, 8)))
-        self.__serial.write(self.__byteToString(self.__rightShift(packetLength, 0)))
+        packet += (self.__byteToString(self.__rightShift(packetLength, 8)))
+        packet += (self.__byteToString(self.__rightShift(packetLength, 0)))
 
         ## The packet checksum = packet type (1 byte) + packet length (2 bytes) + payload (n bytes)
         packetChecksum = packetType + self.__rightShift(packetLength, 8) + self.__rightShift(packetLength, 0)
 
         ## Write payload
         for i in range(0, len(packetPayload)):
-            self.__serial.write(self.__byteToString(packetPayload[i]))
+            packet += (self.__byteToString(packetPayload[i]))
             packetChecksum += packetPayload[i]
 
         ## Write checksum (2 bytes)
-        self.__serial.write(self.__byteToString(self.__rightShift(packetChecksum, 8)))
-        self.__serial.write(self.__byteToString(self.__rightShift(packetChecksum, 0)))
+        packet += (self.__byteToString(self.__rightShift(packetChecksum, 8)))
+        packet += (self.__byteToString(self.__rightShift(packetChecksum, 0)))
+
+        self.__serial.write(packet)
 
     def __readPacket(self):
         """
