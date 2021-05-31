@@ -135,7 +135,7 @@ class PyFingerprint(object):
     __password = None
     __serial = None
 
-    def __init__(self, port = '/dev/ttyUSB0', baudRate = 57600, address = 0xFFFFFFFF, password = 0x00000000):
+    def __init__(self, port = '/dev/ttyUSB0', baudRate = 57600, address = 0xFFFFFFFF, password = 0x00000000, serialobj = None):
         """
         Constructor
 
@@ -162,7 +162,10 @@ class PyFingerprint(object):
         self.__password = password
 
         ## Initialize PySerial connection
-        self.__serial = serial.Serial(port = port, baudrate = baudRate, bytesize = serial.EIGHTBITS, timeout = 2)
+        if serialobj is None:
+            self.__serial = serial.Serial(port = port, baudrate = baudRate, bytesize = serial.EIGHTBITS, timeout = 2)
+        else:
+            self.__serial = serialobj
 
         if ( self.__serial.isOpen() == True ):
             self.__serial.close()
